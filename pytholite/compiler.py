@@ -4,7 +4,6 @@ from collections import OrderedDict
 
 from migen.util.misc import xdir
 from migen.fhdl.structure import *
-from migen.fhdl.visit import TransformModule
 from migen.fhdl.specials import Memory
 
 from pytholite.ioo import UnifiedIOObject
@@ -335,4 +334,6 @@ class Pytholite(UnifiedIOObject):
                 self.submodules += register
 
         fsm = implement_fsm(states)
-        self.submodules += TransformModule(LowerAbstractLoad().visit, fsm)
+        fsm_get_fragment = fsm.get_fragment
+        fsm.get_fragment = lambda: LowerAbstractLoad().visit(fsm_get_fragment())
+        self.submodules += fsm
